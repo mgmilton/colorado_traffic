@@ -245,8 +245,8 @@
     var map = new mapboxgl.Map({
       container: 'map', // container element id
       style: 'mapbox://styles/mapbox/light-v9',
-      center: [-104.9903, 39.7392], // initial map center in [lon, lat]
-      zoom: 10.75
+      center: [-104.983840, 39.709213], // initial map center in [lon, lat]
+      zoom: 11
     })
     map.on('load', function() {
       var filterNeighborhood = ['!=', ['string', ['get', 'NEIGHBORHOOD_ID']], 'placeholder'];
@@ -255,7 +255,7 @@
       type: 'circle',
       source: {
         type: 'geojson',
-        data: './colorado_traffic_accidents.geojson' // replace this with the url of your own geojson
+        data: './data/colorado_traffic_accidents.geojson' // replace this with the url of your own geojson
       },
       paint: {
         'circle-radius': [
