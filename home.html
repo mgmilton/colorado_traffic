@@ -40,7 +40,7 @@
     #console {
       position: absolute;
       height: 800px;
-      width: 240px;
+      width: 325px;
       margin: 10px;
       padding: 10px 20px;
       background-color: white;
@@ -243,10 +243,10 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibWdtaWx0b24iLCJhIjoiY2pldm81anY4MG13aDJ5cGEza3hxcml1cSJ9.aU1ioXfQ5DPbyQKdcUdxoA';
 
     var map = new mapboxgl.Map({
-      container: 'map', // container element id
+      container: 'map',
       style: 'mapbox://styles/mapbox/light-v9',
-      center: [-104.983840, 39.709213], // initial map center in [lon, lat]
-      zoom: 11
+      center: [-104.983840, 39.709213],
+      zoom: 10.85
     })
     map.on('load', function() {
       var filterNeighborhood = ['!=', ['string', ['get', 'NEIGHBORHOOD_ID']], 'placeholder'];
@@ -255,7 +255,7 @@
       type: 'circle',
       source: {
         type: 'geojson',
-        data: './data/colorado_traffic_accidents.geojson' // replace this with the url of your own geojson
+        data: './data/colorado_traffic_accidents.geojson'
       },
       paint: {
         'circle-radius': [
