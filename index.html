@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title>Colorado Traffic Accidents</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 20px;
+      line-height: 30px;
+    }
+
+    h2 {
+      font-size: 14px;
+      line-height: 20px;
+      margin-bottom: 10px;
+    }
+
+    a {
+      text-decoration: none;
+      color: #2dc4b2;
+    }
+
+    #console {
+      position: absolute;
+      height: 800px;
+      width: 240px;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: white;
+    }
+    .session {
+      margin-bottom: 20px;
+    }
+
+    .row {
+      height: 12px;
+      width: 100%;
+    }
+
+    .label {
+      width: 15%;
+      display: inline-block;
+      text-align: center;
+    }
+
+  </style>
+
+<body>
+  <div id='map'></div>
+  <div id='console'>
+    <h1>Denver Traffic Accidents</h1>
+    <p>Data: <a href='http://data.opencolorado.org/dataset/city-and-county-of-denver-traffic-accidents'>Traffic Accidents</a> in Denver, CO from 2012-Now</p>
+    <div class='session'>
+      <h2>Neighborhoods</h2>
+      <div class='row' id='filters'>
+        <input id='all' type='radio' name='toggle' value='all' checked='checked'>
+        <label for='all'>All</label>
+        <input id='Capitol Hill' type='radio' name='toggle' value='Capitol Hill'>
+        <label for='Capitol Hill'>Capitol Hill</label>
+        <input id='Hampden South' type='radio' name='toggle' value='Hampden South'>
+        <label for='Hampden South'>Hampden South</label>
+        <input id='Harvey Park' type='radio' name='toggle' value='Harvey Park'>
+        <label for='Harvey Park'>Harvey Park</label>
+        <input id='Washington Park West' type='radio' name='toggle' value='Washington Park West'>
+        <label for='Washington Park West'>Washington Park West</label>
+        <input id='Lincoln Park' type='radio' name='toggle' value='Lincoln Park'>
+        <label for='Lincoln Park'>Lincoln Park</label>
+        <input id='Congress Park' type='radio' name='toggle' value='Congress Park'>
+        <label for='Congress Park'>Congress Park</label>
+        <input id='Westwood' type='radio' name='toggle' value='Westwood'>
+        <label for='Westwood'>Westwood</label>
+        <input id='Cole' type='radio' name='toggle' value='Cole'>
+        <label for='Cole'>Cole</label>
+        <input id='Auraria' type='radio' name='toggle' value='Auraria'>
+        <label for='Auraria'>Auraria</label>
+        <input id='Stapleton' type='radio' name='toggle' value='Stapleton'>
+        <label for='Stapleton'>Stapleton</label>
+        <input id='Hale' type='radio' name='toggle' value='Hale'>
+        <label for='Hale'>Hale</label>
+        <input id='Sunnyside' type='radio' name='toggle' value='Sunnyside'>
+        <label for='Sunnyside'>Sunnyside</label>
+        <input id='Virginia Village' type='radio' name='toggle' value='Virginia Village'>
+        <label for='Virginia Village'>Virginia Village</label>
+        <input id='CBD' type='radio' name='toggle' value='CBD'>
+        <label for='CBD'>CBD</label>
+        <input id='Baker' type='radio' name='toggle' value='Baker'>
+        <label for='Baker'>Baker</label>
+        <input id='Sloan Lake' type='radio' name='toggle' value='Sloan Lake'>
+        <label for='Sloan Lake'>Sloan Lake</label>
+        <input id='East Colfax' type='radio' name='toggle' value='East Colfax'>
+        <label for='East Colfax'>East Colfax</label>
+        <input id='Highland' type='radio' name='toggle' value='Highland'>
+        <label for='Highland'>Highland</label>
+        <input id='Cheesman Park' type='radio' name='toggle' value='Cheesman Park'>
+        <label for='Cheesman Park'>Cheesman Park</label>
+        <input id='University Park' type='radio' name='toggle' value='University Park'>
+        <label for='University Park'>University Park</label>
+        <input id='Overland' type='radio' name='toggle' value='Overland'>
+        <label for='Overland'>Overland</label>
+        <input id='West Highland' type='radio' name='toggle' value='West Highland'>
+        <label for='West Highland'>West Highland</label>
+        <input id='Washington Park' type='radio' name='toggle' value='Washington Park'>
+        <label for='Washington Park'>Washington Park</label>
+        <input id='Mar Lee' type='radio' name='toggle' value='Mar Lee'>
+        <label for='Mar Lee'>Mar Lee</label>
+        <input id='South Park Hill' type='radio' name='toggle' value='South Park Hill'>
+        <label for='South Park Hill'>South Park Hill</label>
+        <input id='North Park Hill' type='radio' name='toggle' value='North Park Hill'>
+        <label for='North Park Hill'>North Park Hill</label>
+        <input id='City Park' type='radio' name='toggle' value='City Park'>
+        <label for='City Park'>City Park</label>
+        <input id='Union Station' type='radio' name='toggle' value='Union Station'>
+        <label for='Union Station'>Union Station</label>
+        <input id='Elyria Swansea' type='radio' name='toggle' value='Elyria Swansea'>
+        <label for='Elyria Swansea'>Elyria Swansea</label>
+        <input id='University' type='radio' name='toggle' value='University'>
+        <label for='University'>University</label>
+        <input id='Globeville' type='radio' name='toggle' value='Globeville'>
+        <label for='Globeville'>Globeville</label>
+        <input id='DIA' type='radio' name='toggle' value='DIA'>
+        <label for='DIA'>DIA</label>
+        <input id='Ruby Hill' type='radio' name='toggle' value='Ruby Hill'>
+        <label for='Ruby Hill'>Ruby Hill</label>
+        <input id='Five Points' type='radio' name='toggle' value='Five Points'>
+        <label for='Five Points'>Five Points</label>
+        <input id='Marston' type='radio' name='toggle' value='Marston'>
+        <label for='Marston'>Marston</label>
+        <input id='City Park West' type='radio' name='toggle' value='City Park West'>
+        <label for='City Park West'>City Park West</label>
+        <input id='Speer' type='radio' name='toggle' value='Speer'>
+        <label for='Speer'>Speer</label>
+        <input id='Montbello' type='radio' name='toggle' value='Montbello'>
+        <label for='Montbello'>Montbello</label>
+        <input id='Speer' type='radio' name='toggle' value='Speer'>
+        <label for='Speer'>Speer</label>
+        <input id='Montbello' type='radio' name='toggle' value='Montbello'>
+        <label for='Montbello'>Montbello</label>
+        <input id='Jefferson Park' type='radio' name='toggle' value='Jefferson Park'>
+        <label for='Jefferson Park'>Jefferson Park</label>
+        <input id='Northeast Park Hill' type='radio' name='toggle' value='Northeast Park Hill'>
+        <label for='Northeast Park Hill'>Northeast Park Hill</label>
+        <input id='Bear Valley' type='radio' name='toggle' value='Bear Valley'>
+        <label for='Bear Valley'>Bear Valley</label>
+        <input id='Gateway - Green Valley Ranch' type='radio' name='toggle' value='Gateway - Green Valley Ranch'>
+        <label for='Gateway - Green Valley Ranch'>Gateway - Green Valley Ranch</label>
+        <input id='North Capitol Hill' type='radio' name='toggle' value='North Capitol Hill'>
+        <label for='North Capitol Hill'>North Capitol Hill</label>
+        <input id='Belcaro' type='radio' name='toggle' value='Belcaro'>
+        <label for='Belcaro'>Belcaro</label>
+        <input id='Country Club' type='radio' name='toggle' value='Country Club'>
+        <label for='Country Club'>Country Club</label>
+        <input id='Southmoor Park' type='radio' name='toggle' value='Southmoor Park'>
+        <label for='Southmoor Park'>Southmoor Park</label>
+        <input id='Civic Center' type='radio' name='toggle' value='Civic Center'>
+        <label for='Civic Center'>Civic Center</label>
+        <input id='Lowry Field' type='radio' name='toggle' value='Lowry Field'>
+        <label for='Lowry Field'>Lowry Field</label>
+        <input id='Hampden' type='radio' name='toggle' value='Hampden'>
+        <label for='Hampden'>Hampden</label>
+        <input id='Barnum' type='radio' name='toggle' value='Barnum'>
+        <label for='Barnum'>Barnum</label>
+        <input id='Cory - Merrill' type='radio' name='toggle' value='Cory - Merrill'>
+        <label for='Cory - Merrill'>Cory - Merrill</label>
+        <input id='Regis' type='radio' name='toggle' value='Regis'>
+        <label for='Regis'>Regis</label>
+        <input id='Hilltop' type='radio' name='toggle' value='Hilltop'>
+        <label for='Hilltop'>Hilltop</label>
+        <input id='Barnum West' type='radio' name='toggle' value='Barnum West'>
+        <label for='Barnum West'>Barnum West</label>
+        <input id='Sun Valley' type='radio' name='toggle' value='Sun Valley'>
+        <label for='Sun Valley'>Sun Valley</label>
+        <input id='Chaffee Park' type='radio' name='toggle' value='Chaffee Park'>
+        <label for='Chaffee Park'>Chaffee Park</label>
+        <input id='Clayton' type='radio' name='toggle' value='Clayton'>
+        <label for='Clayton'>Clayton</label>
+        <input id='Washington Virginia Vale' type='radio' name='toggle' value='Washington Virginia Vale'>
+        <label for='Washington Virginia Vale'>Washington Virginia Vale</label>
+        <input id='Skyland' type='radio' name='toggle' value='Skyland'>
+        <label for='Skyland'>Skyland</label>
+        <input id='Berkeley' type='radio' name='toggle' value='Berkeley'>
+        <label for='Berkeley'>Berkeley</label>
+        <input id='College View - South Platte' type='radio' name='toggle' value='College View - South Platte'>
+        <label for='College View - South Platte'>College View - South Platte</label>
+        <input id='Goldsmith' type='radio' name='toggle' value='Goldsmith'>
+        <label for='Goldsmith'>Goldsmith</label>
+        <input id='Cherry Creek' type='radio' name='toggle' value='Cherry Creek'>
+        <label for='Cherry Creek'>Cherry Creek</label>
+        <input id='Athmar Park' type='radio' name='toggle' value='Athmar Park'>
+        <label for='Athmar Park'>Athmar Park</label>
+        <input id='Villa Park' type='radio' name='toggle' value='Villa Park'>
+        <label for='Villa Park'>Villa Park</label>
+        <input id='Fort Logan' type='radio' name='toggle' value='Fort Logan'>
+        <label for='Fort Logan'>Fort Logan</label>
+        <input id='University Hills' type='radio' name='toggle' value='University Hills'>
+        <label for='University Hills'>University Hills</label>
+        <input id='Clayton' type='radio' name='toggle' value='Clayton'>
+        <label for='Clayton'>Clayton</label>
+        <input id='West Colfax' type='radio' name='toggle' value='West Colfax'>
+        <label for='West Colfax'>West Colfax</label>
+        <input id='Harvey Park South' type='radio' name='toggle' value='Harvey Park South'>
+        <label for='Harvey Park South'>Harvey Park South</label>
+        <input id='Montclair' type='radio' name='toggle' value='Montclair'>
+        <label for='Montclair'>Montclair</label>
+        <input id='Platt Park' type='radio' name='toggle' value='Platt Park'>
+        <label for='Platt Park'>Platt Park</label>
+        <input id='Wellshire' type='radio' name='toggle' value='Wellshire'>
+        <label for='Wellshire'>Wellshire</label>
+        <input id='Windsor' type='radio' name='toggle' value='Windsor'>
+        <label for='Windsor'>Windsor</label>
+        <input id='Valverde' type='radio' name='toggle' value='Valverde'>
+        <label for='Valverde'>Valverde</label>
+        <input id='Whittier' type='radio' name='toggle' value='Whittier'>
+        <label for='Whittier'>Whittier</label>
+        <input id='Rosedale' type='radio' name='toggle' value='Rosedale'>
+        <label for='Rosedale'>Rosedale</label>
+        <input id='Kennedy' type='radio' name='toggle' value='Kennedy'>
+        <label for='Kennedy'>Kennedy</label>
+        <input id='Indian Creek' type='radio' name='toggle' value='Indian Creek'>
+        <label for='Indian Creek'>Indian Creek</label>
+      </div></br></br>
+    </div>
+  </div>
+
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWdtaWx0b24iLCJhIjoiY2pldm81anY4MG13aDJ5cGEza3hxcml1cSJ9.aU1ioXfQ5DPbyQKdcUdxoA';
+
+    var map = new mapboxgl.Map({
+      container: 'map', // container element id
+      style: 'mapbox://styles/mapbox/light-v9',
+      center: [-104.9903, 39.7392], // initial map center in [lon, lat]
+      zoom: 10.75
+    })
+    map.on('load', function() {
+      var filterNeighborhood = ['!=', ['string', ['get', 'NEIGHBORHOOD_ID']], 'placeholder'];
+    map.addLayer({
+      id: 'collisions',
+      type: 'circle',
+      source: {
+        type: 'geojson',
+        data: './colorado_traffic_accidents.geojson' // replace this with the url of your own geojson
+      },
+      paint: {
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['number', ['get', 'NEIGHBORHOOD_ID']],
+          0, 4,
+          5, 24
+        ],
+        'circle-color': {
+          property: 'NEIGHBORHOOD_ID',
+          type: "categorical",
+          stops: [
+          ["Harvey Park", '#2DC4B2'],
+          ["Hampden South", '#3BB3C3'],
+          ["Capitol Hill", '#AA5E79'],
+          ["Washington Park West", '#8B88B6'],
+          ["Lincoln Park", '#92A8A6'],
+          ["Congress Park", '#558B6E'],
+          ["Westwood", '#4A7B9D'],
+          ["Cole", '#54577C'],
+          ["Auraria", '#A3320B'],
+          ["Stapleton", '#40C9A2'],
+          ["Hale", '#664147'],
+          ["Sunnyside", '#772D8B'],
+          ["Virginia Village", '#85C8D1'],
+          ["CBD", '#FF8552'],
+          ["Baker", '#E1DABD'],
+          ["Sloan Lake", '#F6F740'],
+          ["East Colfax", '#FF1654'],
+          ["Highland", '#00A7E1'],
+          ["Cheesman Park", '#262A10'],
+          ["University Park", '#439775'],
+          ["Overland", '#A1EF8B'],
+          ["West Highland", '#9AB0E6'],
+          ["Washington Park", '#F0CEA0'],
+          ["Mar Lee", '#086788'],
+          ["South Park Hill", '#F3A712'],
+          ["North Park Hill", '#29335C'],
+          ["City Park", '#181F1C'],
+          ["Union Station", '#830A48'],
+          ["Elyria Swansea", '#52FFB8'],
+          ["University", '#4A051C'],
+          ["Globeville", '#9EA93F'],
+          ["North Capitol Hill", '#D0FEF5'],
+          ["DIA", '#70ABAF'],
+          ["Ruby Hill", '#9C0D38'],
+          ["Five Points", '#DBBBF5'],
+          ["Marston", '#223127'],
+          ["City Park West", '#48304D'],
+          ["Speer", '#D2F1E4'],
+          ["Montbello", '#FBCAEF'],
+          ["Bear Valley", '#E637BF'],
+          ["Gateway - Green Valley Ranch", '#BA6E6E'],
+          ["Northeast Park Hill", '#A63A50'],
+          ["Jefferson Park", '#A1674A'],
+          ["Belcaro", '#B497D6'],
+          ["Country Club", '#4B6858'],
+          ["Southmoor Park", '#A5E6BA'],
+          ["Civic Center", '#7785AC'],
+          ["Lowry Field", '#5B2A86'],
+          ["Hampden", '#360568'],
+          ["Barnum", '#772F1A'],
+          ["Cory - Merrill", '#F5F1E3'],
+          ["Regis", '#1B9AAA'],
+          ["Hilltop", '#0B5563'],
+          ["Barnum West", '#43BCCD'],
+          ["Sun Valley", '#F9C80E'],
+          ["Chaffee Park", '#F86624'],
+          ["Clayton", '#89FC00'],
+          ["Washington Virginia Vale", '#008BF8'],
+          ["Skyland", '#DC0073'],
+          ["Berkeley", '#F5B700'],
+          ["College View - South Platte", '#04E762'],
+          ["Goldsmith", '#D1345B'],
+          ["Cherry Creek", '#C7D6D5'],
+          ["Athmar Park", '#C20114'],
+          ["Villa Park", '#988B8E'],
+          ["Fort Logan", '#E5C3D1'],
+          ["University Hills", '#EF798A'],
+          ["Kennedy", '#6184D8'],
+          ["West Colfax", '#AF8D86'],
+          ["Harvey Park South", '#EDBFC6'],
+          ["Montclair", '#564D65'],
+          ["Platt Park", '#2CDA9D'],
+          ["Wellshire", '#05F140'],
+          ["Windsor", '#77A6B6'],
+          ["Valverde", '#B3D89C'],
+          ["Whittier", '#0F4C5C'],
+          ["Rosedale", '#E36414'],
+          ["Indian Creek", '#5F0F40'],
+        ]
+        },
+        'circle-opacity': 0.8
+      }
+    }, 'admin-2-boundaries-dispute');
+
+    document.getElementById('filters').addEventListener('change', function(e) {
+
+      var day = e.target.value;
+      // update the map filter
+      if (day === 'all') {
+        filterDay = ['!=', ['string', ['get', 'NEIGHBORHOOD_ID']], 'placeholder'];
+      } else if (day === 'Capitol Hill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Capitol Hill'], true, false];
+      } else if (day === 'Harvey Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Harvey Park'], true, false];
+      } else if (day === 'Washington Park West') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Washington Park West'], true, false];
+      } else if (day === 'Hampden South') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Hampden South'], true, false];
+      } else if (day === 'Lincoln Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Lincoln Park'], true, false];
+      } else if (day === 'Congress Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Congress Park'], true, false];
+      } else if (day === 'Westwood') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Westwood'], true, false];
+      } else if (day === 'Cole') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Cole'], true, false];
+      } else if (day === 'Auraria') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Auraria'], true, false];
+      } else if (day === 'Stapleton') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Stapleton'], true, false];
+      } else if (day === 'Hale') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Hale'], true, false];
+      } else if (day === 'Sunnyside') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Sunnyside'], true, false];
+      } else if (day === 'Virginia Village') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Virginia Village'], true, false];
+      } else if (day === 'CBD') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['CBD'], true, false];
+      } else if (day === 'Baker') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Baker'], true, false];
+      } else if (day === 'Sloan Lake') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Sloan Lake'], true, false];
+      } else if (day === 'East Colfax') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['East Colfax'], true, false];
+      } else if (day === 'Highland') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Highland'], true, false];
+      } else if (day === 'Cheesman Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Cheesman Park'], true, false];
+      } else if (day === 'University Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['University Park'], true, false];
+      } else if (day === 'Overland') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Overland'], true, false];
+      } else if (day === 'West Highland') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['West Highland'], true, false];
+      } else if (day === 'Washington Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Washington Park'], true, false];
+      } else if (day === 'Mar Lee') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Mar Lee'], true, false];
+      } else if (day === 'South Park Hill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['South Park Hill'], true, false];
+      } else if (day === 'North Park Hill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['North Park Hill'], true, false];
+      } else if (day === 'City Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['City Park'], true, false];
+      } else if (day === 'Union Station') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Union Station'], true, false];
+      } else if (day === 'Elyria Swansea') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Elyria Swansea'], true, false];
+      } else if (day === 'University') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['University'], true, false];
+      } else if (day === 'Globeville') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Globeville'], true, false];
+      } else if (day === 'University Hills') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['University Hills'], true, false];
+      } else if (day === 'Fort Logan') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Fort Logan'], true, false];
+      } else if (day === 'Villa Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Villa Park'], true, false];
+      } else if (day === 'Athmar Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Athmar Park'], true, false];
+      } else if (day === 'Cherry Creek') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Cherry Creek'], true, false];
+      } else if (day === 'Goldsmith') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Goldsmith'], true, false];
+      } else if (day === 'College View - South Platte') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['College View - South Platte'], true, false];
+      } else if (day === 'Skyland') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Skyland'], true, false];
+      } else if (day === 'Washington Virginia Vale') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Washington Virginia Vale'], true, false];
+      } else if (day === 'Clayton') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Clayton'], true, false];
+      } else if (day === 'Chaffee Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Chaffee Park'], true, false];
+      } else if (day === 'Sun Valley') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Sun Valley'], true, false];
+      } else if (day === 'Barnum West') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Barnum West'], true, false];
+      } else if (day === 'Hilltop') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Hilltop'], true, false];
+      } else if (day === 'Regis') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Regis'], true, false];
+      } else if (day === 'DIA') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['DIA'], true, false];
+      } else if (day === 'Ruby Hill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Ruby Hill'], true, false];
+      } else if (day === 'Five Points') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Five Points'], true, false];
+      } else if (day === 'Marston') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Marston'], true, false];
+      } else if (day === 'City Park West') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['City Park West'], true, false];
+      } else if (day === 'Speer') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Speer'], true, false];
+      } else if (day === 'Bear Valley') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Bear Valley'], true, false];
+      } else if (day === 'Gateway - Green Valley Ranch') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Gateway - Green Valley Ranch'], true, false];
+      } else if (day === 'Northeast Park Hill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Northeast Park Hill'], true, false];
+      } else if (day === 'Jefferson Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Jefferson Park'], true, false];
+      } else if (day === 'Belcaro') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Belcaro'], true, false];
+      } else if (day === 'Country Club') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Country Club'], true, false];
+      } else if (day === 'Southmoor Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Southmoor Park'], true, false];
+      } else if (day === 'Civic Center') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Civic Center'], true, false];
+      } else if (day === 'Lowry Field') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Lowry Field'], true, false];
+      } else if (day === 'Hampden') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Hampden'], true, false];
+      } else if (day === 'Barnum') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Barnum'], true, false];
+      } else if (day === 'West Colfax') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['West Colfax'], true, false];
+      } else if (day === 'Harvey Park South') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Harvey Park South'], true, false];
+      } else if (day === 'Montclair') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Montclair'], true, false];
+      } else if (day === 'Platt Park') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Platt Park'], true, false];
+      } else if (day === 'Wellshire') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Wellshire'], true, false];
+      } else if (day === 'Windsor') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Windsor'], true, false];
+      } else if (day === 'Valverde') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Valverde'], true, false];
+      } else if (day === 'Whittier') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Whittier'], true, false];
+      } else if (day === 'Rosedale') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Rosedale'], true, false];
+      } else if (day === 'Kennedy') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Kennedy'], true, false];
+      } else if (day === 'Indian Creek') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Indian Creek'], true, false];
+      } else if (day === 'Cory - Merrill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['Cory - Merrill'], true, false];
+      } else if (day === 'North Capitol Hill') {
+        filterDay = ['match', ['get', 'NEIGHBORHOOD_ID'], ['North Capitol Hill'], true, false];
+      } else {
+        console.log('error');
+      }
+      map.setFilter('collisions', ['all', filterDay]);
+    });
+    map.addControl(new mapboxgl.NavigationControl({ position: 'top-left' }));
+      });
+  </script>
+</body>
+
+</html>
